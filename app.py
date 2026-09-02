@@ -156,6 +156,18 @@ def init_db():
         VALUES ('commission_percent', '10')
     """)
 
+    # Create notifications table
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            booking_id TEXT,
+            message TEXT NOT NULL,
+            is_read INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     # Auto-migrate users table for existing databases
     user_columns = {
         "vehicle": "TEXT DEFAULT ''",
