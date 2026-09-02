@@ -2056,6 +2056,12 @@ def driver_eta(booking_id):
 
 
 # =========================
+# INITIALIZE DATABASE FOR ALL SERVERS
+# =========================
+init_db()
+create_admin()
+
+# =========================
 # START APP
 # =========================
 
