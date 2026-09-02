@@ -617,6 +617,7 @@ def book_taxi():
         # OSRM ROAD DISTANCE
         # =========================
 
+        print("BOOK DEBUG:", {"pickup": pickup, "destination": destination, "pickup_lat": pickup_latitude, "pickup_lng": pickup_longitude, "destination_lat": destination_latitude, "destination_lng": destination_longitude})
         distance = None
 
         if (
