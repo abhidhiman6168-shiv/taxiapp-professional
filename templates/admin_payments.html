@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Verification - TaxiApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+
+        .verify {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #16a34a;
+            color: white;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>💳 Payment Verification</h1>
+    <p>🚕 TaxiApp Admin</p>
+</div>
+
+<div class="container">
+
+{% if payments %}
+
+    {% for payment in payments %}
+
+    <div class="card">
+
+        <h3>🆔 {{ payment["booking_id"] }}</h3>
+
+        <p>👤 <b>Customer:</b> {{ payment["customer_name"] }}</p>
+
+        <p>📱 <b>Mobile:</b> {{ payment["customer_mobile"] }}</p>
+
+        <p>👨‍✈️ <b>Driver:</b> {{ payment["driver_name"] or "Not assigned" }}</p>
+
+        <p>📍 <b>Pickup:</b> {{ payment["pickup"] }}</p>
+
+        <p>🏁 <b>Destination:</b> {{ payment["destination"] }}</p>
+
+        <p>💰 <b>Fare:</b> ₹{{ "%.2f"|format(payment["fare"]) }}</p>
+
+        <p>💳 <b>Method:</b> {{ payment["payment_method"] }}</p>
+
+        <p style="color:#d97706;font-weight:bold;">
+            🟡 PAYMENT VERIFYING
+        </p>
+
+        <a class="verify"
+           href="{{ url_for('verify_payment', booking_id=payment['booking_id']) }}"
+           onclick="return confirm('Payment verify karni hai?');">
+            🟢 VERIFY PAYMENT
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <div class="card" style="text-align:center;">
+        <h3>📭 No Payments</h3>
+        <p>Abhi koi payment verification pending nahi hai.</p>
+    </div>
+
+{% endif %}
+
+<a href="/admin" class="back">← Back to Admin Dashboard</a>
+
+</div>
+
+</body>
+</html>

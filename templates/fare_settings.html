@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fare Settings - TaxiApp</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+h1 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    margin-top: 7px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button, a {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button {
+    background: #16a34a;
+    color: white;
+}
+
+a {
+    background: #eee;
+    color: #222;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<div class="card">
+
+<h1>💰 Fare Settings</h1>
+
+<form method="POST">
+
+<label>Rate Per KM (₹)</label>
+<input
+    type="number"
+    name="rate_per_km"
+    value="{{ rate }}"
+    min="1"
+    step="0.01"
+    required
+>
+
+<label>Minimum Fare (₹)</label>
+<input
+    type="number"
+    name="minimum_fare"
+    value="{{ minimum_fare }}"
+    min="0"
+    step="0.01"
+    required
+>
+
+<label>App Commission (%)</label>
+<input
+    type="number"
+    name="commission_percent"
+    value="{{ commission_percent }}"
+    min="0"
+    max="100"
+    step="0.1"
+    required
+>
+
+<button type="submit">
+    💾 SAVE FARE SETTINGS
+</button>
+
+</form>
+
+<a href="/admin">
+    ← Back to Admin Dashboard
+</a>
+
+</div>
+</div>
+
+</body>
+</html>

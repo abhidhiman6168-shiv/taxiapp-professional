@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Driver KYC - TaxiApp</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f2f4f7;
+    margin:0;
+}
+
+.header{
+    background:#111827;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    padding:15px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin-top:7px;
+    box-sizing:border-box;
+    border:1px solid #ccc;
+    border-radius:10px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:10px;
+    background:#16a34a;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    margin-top:20px;
+}
+
+.status{
+    text-align:center;
+    padding:12px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.back{
+    display:block;
+    text-align:center;
+    background:#111827;
+    color:white;
+    padding:14px;
+    border-radius:10px;
+    text-decoration:none;
+    margin-top:12px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🪪 Driver KYC</h1>
+    <p>TaxiApp Professional</p>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+{% if driver["kyc_status"] == "approved" %}
+
+<div class="status"
+     style="background:#dcfce7;color:#166534;">
+    🟢 KYC VERIFIED
+</div>
+
+{% elif driver["kyc_status"] == "rejected" %}
+
+<div class="status"
+     style="background:#fee2e2;color:#991b1b;">
+    🔴 KYC REJECTED
+</div>
+
+{% else %}
+
+<div class="status"
+     style="background:#fef3c7;color:#92400e;">
+    🟡 KYC PENDING
+</div>
+
+{% endif %}
+
+</div>
+
+
+<div class="card">
+
+<form method="POST"
+      enctype="multipart/form-data">
+
+<label>🪪 Driving Licence Number</label>
+
+<input
+    type="text"
+    name="driving_license"
+    value="{{ driver['driving_license'] or '' }}"
+    required>
+
+
+<label>📄 Upload Driving Licence</label>
+
+<input
+    type="file"
+    name="driving_license_file"
+    accept=".jpg,.jpeg,.png,.pdf"
+    required>
+
+
+<label>🚗 Vehicle RC Number</label>
+
+<input
+    type="text"
+    name="vehicle_rc"
+    value="{{ driver['vehicle_rc'] or '' }}"
+    required>
+
+
+<label>📄 Upload Vehicle RC</label>
+
+<input
+    type="file"
+    name="vehicle_rc_file"
+    accept=".jpg,.jpeg,.png,.pdf"
+    required>
+
+
+<label>🆔 ID Proof Number</label>
+
+<input
+    type="text"
+    name="id_proof"
+    value="{{ driver['id_proof'] or '' }}"
+    required>
+
+
+<label>📄 Upload ID Proof</label>
+
+<input
+    type="file"
+    name="id_proof_file"
+    accept=".jpg,.jpeg,.png,.pdf"
+    required>
+
+
+<label>📸 Driver Photo</label>
+
+<input
+    type="file"
+    name="driver_photo"
+    accept=".jpg,.jpeg,.png"
+    required>
+
+
+<button type="submit">
+    📤 SUBMIT KYC
+</button>
+
+</form>
+
+</div>
+
+
+<a href="/driver/profile" class="back">
+    🔙 Back to Driver Profile
+</a>
+
+</div>
+
+</body>
+</html>

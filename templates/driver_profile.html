@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Profile</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.profile {
+    text-align: center;
+}
+
+.avatar {
+    font-size: 60px;
+}
+
+.name {
+    font-size: 25px;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.info {
+    margin: 8px 0;
+    color: #444;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.stat {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat b {
+    display: block;
+    font-size: 22px;
+    margin-top: 5px;
+}
+
+.rating {
+    text-align: center;
+    font-size: 28px;
+}
+
+.review {
+    border-top: 1px solid #ddd;
+    padding: 12px 0;
+}
+
+.review:first-child {
+    border-top: none;
+}
+
+.back {
+    display: block;
+    text-align: center;
+    background: #111827;
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    🚕 DRIVER PROFILE
+</div>
+
+<div class="container">
+
+    <div class="card profile">
+        <div class="avatar">👨‍✈️</div>
+
+        <div class="name">
+            {{ driver["name"] }}
+        </div>
+
+        <div class="info">
+            📱 {{ driver["mobile"] }}
+        </div>
+
+        <div class="info">
+            🚕 Vehicle:
+            {{ driver["vehicle"] or "Not Added" }}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="rating">
+            ⭐ {{ "%.1f"|format(rating_data["average_rating"]) }}
+        </div>
+
+        <p style="text-align:center;">
+            {{ rating_data["rating_count"] }} Customer Ratings
+        </p>
+    </div>
+
+    <div class="card stats">
+
+        <div class="stat">
+            🏁 Completed Rides
+            <b>{{ stats["completed_rides"] }}</b>
+        </div>
+
+        <div class="stat">
+            💰 Total Fare
+            <b>₹{{ "%.2f"|format(stats["total_fare"]) }}</b>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>💬 Customer Reviews</h3>
+
+        {% if reviews %}
+
+            {% for review in reviews %}
+
+            <div class="review">
+
+                <div>
+                    ⭐ {{ review["rating"] }}/5
+                </div>
+
+                <div>
+                    {{ review["review"] or "No review written." }}
+                </div>
+
+                <small>
+                    {{ review["created_at"] }}
+                </small>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>📭 Abhi koi review nahi hai.</p>
+
+        {% endif %}
+
+    </div>
+
+    <a href="/driver/kyc" class="back" style="margin-bottom:12px;">
+        🪪 KYC VERIFICATION
+    </a>
+
+    <a href="/driver" class="back">
+        🔙 Back to Driver Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>

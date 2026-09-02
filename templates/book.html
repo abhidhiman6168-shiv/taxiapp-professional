@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Taxi - TaxiApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .header {
+            background: #111;
+            color: white;
+            padding: 22px;
+            border-radius: 0 0 25px 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.08);
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: #111;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .fare {
+            margin-top: 18px;
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🚕 Book Taxi</h1>
+    <p>Safe & Professional Ride</p>
+</div>
+
+<div class="container">
+
+    <div class="card">
+
+        <form method="POST" action="/book">
+
+            <label>📍 Pickup Location</label>
+
+            <input
+                type="text"
+                name="pickup"
+                placeholder="Example: Shimla ISBT"
+                required
+            >
+
+            <label>🏁 Destination</label>
+
+            <input
+                type="text"
+                name="destination"
+                placeholder="Example: Mall Road"
+                required
+            >
+
+            <div class="fare">
+                📏 Road Distance:
+                <span id="distance">Calculating after location...</span> KM
+                <br>
+                💰 Estimated Fare:
+                ₹<span id="fare">0.00</span>
+            </div>
+
+            <!-- Customer GPS -->
+            <input type="hidden" name="pickup_latitude" id="pickup_latitude">
+            <input type="hidden" name="pickup_longitude" id="pickup_longitude">
+
+            <input type="hidden" name="destination_latitude" id="destination_latitude">
+            <input type="hidden" name="destination_longitude" id="destination_longitude">
+
+            <p id="gpsStatus" style="font-size:14px;color:#555;">
+                📍 GPS location not set
+            </p>
+
+            <button
+                type="button"
+                onclick="getCustomerLocation()"
+                style="margin-top:8px;width:100%;padding:12px;border:0;border-radius:10px;background:#16a34a;color:white;font-size:16px;font-weight:bold;">
+                📍 USE MY CURRENT LOCATION
+            </button>
+
+            <label>💳 Payment Method</label>
+
+            <select
+                name="payment_method"
+                required
+                style="width:100%;padding:14px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:white;"
+            >
+                <option value="CASH">💵 Cash</option>
+                <option value="ONLINE">📱 Online Payment</option>
+            </select>
+
+            <button type="submit">
+                🚕 CONFIRM TAXI BOOKING
+            </button>
+
+        </form>
+
+        <a href="/customer" class="back">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+// Fare is calculated by the server using OSRM road distance.
+// Manual distance entry has been removed.
+
+
+// =========================
+// CUSTOMER GPS
+// =========================
+
+function getCustomerLocation() {
+
+    const status = document.getElementById("gpsStatus");
+
+    if (!navigator.geolocation) {
+        status.innerText = "❌ GPS browser mein supported nahi hai.";
+        return;
+    }
+
+    status.innerText = "🟡 GPS permission maang rahe hain...";
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+
+            document.getElementById("pickup_latitude").value =
+                position.coords.latitude;
+
+            document.getElementById("pickup_longitude").value =
+                position.coords.longitude;
+
+            status.innerText =
+                "🟢 Pickup GPS location ready";
+        },
+
+        function(error) {
+
+            let message = "⚠️ GPS nahi mila.";
+
+            if (error.code === 1) {
+                message = "❌ Location permission DENIED. Browser location permission Allow karo.";
+            } else if (error.code === 2) {
+                message = "❌ Location unavailable. Phone GPS ON karo.";
+            } else if (error.code === 3) {
+                message = "⏱️ GPS timeout. Thodi der baad dobara try karo.";
+            }
+
+            status.innerText = message;
+            console.log("GPS ERROR:", error.code, error.message);
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+window.addEventListener("load", getCustomerLocation);
+
+</script>
+
+</body>
+</html>

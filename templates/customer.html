@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaxiApp - Customer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .header {
+            background: #111;
+            color: white;
+            padding: 22px;
+            border-radius: 0 0 25px 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .header p {
+            margin-bottom: 0;
+            color: #ccc;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 650px;
+            margin: 20px auto;
+        }
+
+        .book-btn {
+            display: block;
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 18px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 21px;
+            margin: 20px 0 12px;
+        }
+
+        .booking {
+            background: white;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        }
+
+        .booking h3 {
+            margin-top: 0;
+        }
+
+        .status {
+            font-weight: bold;
+            padding: 8px 12px;
+            display: inline-block;
+            border-radius: 20px;
+            background: #eee;
+        }
+
+        .details {
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .cancel {
+            display: inline-block;
+            margin-top: 10px;
+            background: #c62828;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 9px;
+            text-decoration: none;
+        }
+
+        .logout {
+            display: block;
+            text-align: center;
+            margin: 25px 0;
+            color: #c62828;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            color: #777;
+        }
+    
+.rate {
+    display: block;
+    background: #f59e0b;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+</style>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>🚕 TaxiApp</h1>
+
+    <p>
+        Welcome, {{ session["name"] }} 👋
+    </p>
+
+</div>
+
+
+<div class="container">
+
+    <a href="/book" class="book-btn">
+        🚕 BOOK A TAXI
+    </a>
+
+
+    <div style="margin:20px 0;padding:15px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;">
+        <h2 style="margin-top:0;">
+    🔔 Notifications
+    {% if unread_count > 0 %}
+        <span id="notification-badge" style="background:#dc2626;color:white;padding:4px 9px;border-radius:999px;font-size:14px;">
+            {{ unread_count }} New
+        </span>
+    {% endif %}
+</h2>
+
+        {% if notifications %}
+            {% for notification in notifications %}
+                {% if notification["is_read"] == 0 %}
+                    <div style="margin-bottom:8px;text-align:right;">
+                        <a href="/notification/read/{{ notification['id'] }}"
+                           style="padding:6px 10px;background:#2563eb;color:white;text-decoration:none;border-radius:7px;font-size:13px;">
+                            ✓ Mark as Read
+                        </a>
+                    </div>
+                {% endif %}
+                <div style="padding:12px;margin-bottom:8px;border-radius:10px;border:1px solid #eee;
+{% if notification["is_read"] == 0 %}
+background:#fff7ed;
+{% else %}
+background:white;
+{% endif %}">
+                    <div style="font-weight:bold;">
+                        {{ notification["message"] }}
+                    </div>
+                    {% if notification["booking_id"] %}
+                        <small>🚕 Booking: {{ notification["booking_id"] }}</small>
+                    {% endif %}
+                    <br>
+                    <small>🕐 {{ notification["created_at"] }}</small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>📭 No notifications yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="section-title">
+        📋 My Bookings
+    </div>
+
+
+    {% if bookings %}
+
+        {% for booking in bookings %}
+
+        <div class="booking">
+
+            <h3>
+                🆔 {{ booking["booking_id"] }}
+            </h3>
+
+            <div class="status">
+                {{ booking["status"] }}
+            </div>
+
+            <div class="details">
+
+                <p>
+                    📍 <b>Pickup:</b>
+                    {{ booking["pickup"] }}
+                </p>
+
+                <p>
+                    🏁 <b>Destination:</b>
+                    {{ booking["destination"] }}
+                </p>
+
+                <p>
+                    📏 <b>Distance:</b>
+                    {{ booking["distance"] }} km
+                </p>
+
+                <p>
+                    💰 <b>Fare:</b>
+                    ₹{{ "%.2f"|format(booking["fare"]) }}
+                </p>
+
+                {% if booking["status"] in ["ACCEPTED", "ON THE WAY"] and booking["driver_name"] %}
+
+            <div style="margin-top:15px;padding:15px;background:#eff6ff;border-radius:12px;border:1px solid #bfdbfe;">
+
+                <h3 style="margin-top:0;">📍 Driver Live Location</h3>
+
+                <p id="driver-location-{{ booking['id'] }}">
+                    🟡 Waiting for driver's GPS location...
+                </p>
+
+                <p id="driver-eta-{{ booking['id'] }}"
+                   style="margin:8px 0;font-weight:bold;color:#1d4ed8;">
+                    ⏱️ Calculating driver distance and ETA...
+                </p>
+
+                <div id="driver-map-{{ booking['id'] }}"
+                     style="height:300px;border-radius:12px;margin-top:12px;overflow:hidden;">
+                </div>
+
+                <a id="map-link-{{ booking['id'] }}"
+                   href="#"
+                   target="_blank"
+                   style="display:none;width:100%;padding:13px;border-radius:10px;background:#2563eb;color:white;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;">
+                    🗺️ OPEN DRIVER LOCATION
+                </a>
+
+            </div>
+
+            <script>
+            (function() {
+
+                const bookingId = "{{ booking['id'] }}";
+                const statusElement =
+                    document.getElementById("driver-location-" + bookingId);
+
+                const mapLink =
+                    document.getElementById("map-link-" + bookingId);
+
+                const etaElement =
+                    document.getElementById("driver-eta-" + bookingId);
+
+                let driverMap = null;
+                let driverMarker = null;
+
+                async function updateLiveRoute(lat, lng) {
+                    try {
+                        const response = await fetch("/driver/eta/" + bookingId, {
+                            credentials: "same-origin"
+                        });
+
+                        const data = await response.json();
+
+                        if (!data.success || !data.route) {
+                            console.log("LIVE ROUTE: unavailable");
+                            return;
+                        }
+
+                        if (!driverMap) {
+                            return;
+                        }
+
+                        if (driverRoute) {
+                            driverRoute.remove();
+                        }
+
+                        let coordinates = [];
+
+                        if (data.route.type === "LineString") {
+                            coordinates = data.route.coordinates;
+                        } else if (data.route.type === "Feature") {
+                            coordinates = data.route.geometry.coordinates;
+                        }
+
+                        if (!coordinates.length) {
+                            return;
+                        }
+
+                        const latLngs = coordinates.map(function(point) {
+                            return [Number(point[1]), Number(point[0])];
+                        });
+
+                        driverRoute = L.polyline(
+                            latLngs,
+                            { weight: 5 }
+                        ).addTo(driverMap);
+
+                        if (!pickupMarker) {
+                            pickupMarker = L.marker(
+                                [Number(data.pickup_latitude), Number(data.pickup_longitude)]
+                            ).addTo(driverMap);
+
+                            pickupMarker.bindPopup("🏁 Pickup Location");
+                        }
+
+                        console.log("LIVE ROUTE UPDATED:", latLngs.length, "points");
+
+                    } catch (routeError) {
+                        console.log("LIVE ROUTE ERROR:", routeError);
+                    }
+                }
+
+                async function updateDriverLocation() {
+
+                    try {
+
+                        const response =
+                            await fetch("/driver/location/" + bookingId, {
+                                credentials: "same-origin"
+                            });
+
+                        console.log("GPS API status:", response.status);
+                        console.log("GPS API URL:", response.url);
+
+                        const text = await response.text();
+                        console.log("GPS API response:", text);
+
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            statusElement.innerText =
+                                "🔴 GPS API returned non-JSON (" + response.status + ")";
+                            mapLink.style.display = "none";
+                            return;
+                        }
+
+                        if (data.success &&
+                            data.latitude !== null &&
+                            data.longitude !== null) {
+
+                            const lat = Number(data.latitude);
+                            const lng = Number(data.longitude);
+
+                            statusElement.innerText =
+                                "🟢 Driver location LIVE";
+
+                            try {
+                                const etaResponse =
+                                    await fetch("/driver/eta/" + bookingId, {
+                                        credentials: "same-origin"
+                                    });
+
+                                const etaData = await etaResponse.json();
+
+                                if (etaData.success) {
+                                    etaElement.innerText =
+                                        "🚕 Driver is " +
+                                        etaData.distance_km +
+                                        " km away • ⏱️ ETA: " +
+                                        etaData.eta_minutes +
+                                        " min";
+                                } else {
+                                    etaElement.innerText =
+                                        "⏱️ ETA unavailable: " +
+                                        etaData.message;
+                                }
+
+                            } catch (etaError) {
+                                console.log("ETA error:", etaError);
+                                etaElement.innerText =
+                                    "⏱️ ETA temporarily unavailable";
+                            }
+
+                            mapLink.href =
+                                "https://www.google.com/maps?q=" +
+                                lat + "," + lng;
+
+                            mapLink.style.display = "block";
+
+                            updateLiveRoute(lat, lng);
+
+                            const mapElement =
+                                document.getElementById(
+                                    "driver-map-" + bookingId
+                                );
+
+                            if (!driverMap) {
+
+                                driverMap = L.map(mapElement).setView(
+                                    [lat, lng],
+                                    16
+                                );
+
+                                L.tileLayer(
+                                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                    {
+                                        maxZoom: 19,
+                                        attribution: "&copy; OpenStreetMap"
+                                    }
+                                ).addTo(driverMap);
+
+                                driverMarker = L.marker(
+                                    [lat, lng]
+                                ).addTo(driverMap);
+
+                                driverMarker.bindPopup(
+                                    "🚕 Driver Location"
+                                ).openPopup();
+
+                            } else {
+
+                                driverMarker.setLatLng([lat, lng]);
+
+                                driverMap.panTo(
+                                    [lat, lng]
+                                );
+                            }
+
+                        } else {
+
+                            statusElement.innerText =
+                                "🟡 Driver GPS location waiting...";
+
+                            etaElement.innerText =
+                                "⏱️ Waiting for driver location...";
+
+                            mapLink.style.display = "none";
+                        }
+
+                    } catch (error) {
+
+                        console.log(error);
+
+                        statusElement.innerText =
+                            "🔴 Unable to get driver location";
+                    }
+                }
+
+                updateDriverLocation();
+
+                setInterval(
+                    updateDriverLocation,
+                    5000
+                );
+
+            })();
+
+            </script>
+
+            {% endif %}
+
+            {% if booking["status"] == "COMPLETED" %}
+
+                    <div style="margin-top:15px;padding:15px;background:#f8fafc;border-radius:12px;">
+
+                        <p>
+                            💳 <b>Payment Method:</b>
+                            {{ booking["payment_method"] }}
+                        </p>
+
+{% if booking["payment_status"] == "PAID" %}
+
+                            <p style="color:#16a34a;font-weight:bold;">
+                                🟢 PAYMENT PAID
+                            </p>
+
+                        {% else %}
+
+                            <p style="color:#d97706;font-weight:bold;">
+                                🟡 PAYMENT PENDING
+                            </p>
+
+                            {% if booking["payment_method"] == "ONLINE" %}
+
+                                <a href="upi://pay?pa=abhidhiman.6168-8@okaxis&pn=TaxiApp&am={{ "%.2f"|format(booking["fare"]) }}&cu=INR"
+                                   style="display:block;width:100%;padding:13px;border-radius:10px;background:#16a34a;color:white;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;">
+                                    📱 PAY WITH GOOGLE PAY / UPI
+                                </a>
+
+                                <form method="POST"
+                                      action="{{ url_for('make_payment', booking_id=booking['booking_id']) }}"
+                                      onsubmit="return confirm('Google Pay/UPI payment kar diya hai?');">
+
+                                    <button type="submit"
+                                            style="width:100%;margin-top:10px;padding:13px;border:0;border-radius:10px;background:#111827;color:white;font-size:16px;font-weight:bold;">
+                                        ✅ I HAVE PAID
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <form method="POST"
+                                      action="{{ url_for('make_payment', booking_id=booking['booking_id']) }}"
+                                      onsubmit="return confirm('Cash payment driver ko de di hai?');">
+
+                                    <button type="submit"
+                                            style="width:100%;padding:13px;border:0;border-radius:10px;background:#16a34a;color:white;font-size:16px;font-weight:bold;">
+                                        💵 CASH PAID
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        {% endif %}
+
+
+                    </div>
+
+                {% endif %}
+
+                {% if booking["driver_name"] %}
+
+                <p>
+                    👨‍✈️ <b>Driver:</b>
+                    {{ booking["driver_name"] }}
+                </p>
+
+                <p>
+                    📱 <b>Driver Mobile:</b>
+                    {{ booking["driver_mobile"] }}
+                </p>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if booking["status"] == "WAITING" %}
+
+            <a
+                href="/cancel/{{ booking['booking_id'] }}"
+                class="cancel"
+                onclick="return confirm('Booking cancel karni hai?')"
+            >
+                ❌ Cancel Booking
+            </a>
+
+            {% endif %}
+
+{% if booking["status"] == "COMPLETED" and booking["driver_name"] %}
+<a
+    href="{{ url_for('rate_driver', booking_id=booking['booking_id']) }}"
+    class="rate"
+>
+    ⭐ Rate Driver
+</a>
+{% endif %}
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty">
+
+            <h3>📭 No Bookings Yet</h3>
+
+            <p>
+                Apni first taxi book karo.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    <a href="/logout" class="logout">
+        🚪 Logout
+    </a>
+
+</div>
+
+</body>
+</html>
+
+<script>
+let lastUnreadCount = 0;
+
+function playCustomerNotificationSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function ding(frequency, startTime, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value = frequency;
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.12, startTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        }
+
+        const now = audioContext.currentTime;
+
+        ding(659, now, 0.18);
+        ding(784, now + 0.20, 0.18);
+        ding(988, now + 0.40, 0.25);
+
+    } catch (error) {
+        console.log("Customer sound error:", error);
+    }
+}
+
+function showCustomerNotificationPopup(message) {
+    const popup = document.createElement("div");
+
+    popup.textContent = "🔔 " + message;
+
+    popup.style.position = "fixed";
+    popup.style.top = "20px";
+    popup.style.right = "20px";
+    popup.style.zIndex = "9999";
+    popup.style.padding = "15px 20px";
+    popup.style.background = "#2563eb";
+    popup.style.color = "white";
+    popup.style.borderRadius = "10px";
+    popup.style.boxShadow = "0 4px 15px rgba(0,0,0,0.25)";
+    popup.style.fontWeight = "bold";
+    popup.style.maxWidth = "320px";
+
+    document.body.appendChild(popup);
+
+    setTimeout(function () {
+        popup.remove();
+    }, 5000);
+}
+
+async function checkCustomerNotifications() {
+    try {
+        const response = await fetch("/api/notifications");
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        const badge = document.getElementById("notification-badge");
+
+        if (badge) {
+            if (data.unread_count > 0) {
+                badge.textContent = data.unread_count + " New";
+                badge.style.display = "inline-block";
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        if (data.unread_count > lastUnreadCount && data.notifications.length > 0) {
+            const latest = data.notifications[0];
+
+            playCustomerNotificationSound();
+            showCustomerNotificationPopup(latest.message);
+        }
+
+        lastUnreadCount = data.unread_count;
+
+    } catch (error) {
+        console.log("Notification refresh error:", error);
+    }
+}
+
+checkCustomerNotifications();
+setInterval(checkCustomerNotifications, 5000);
+</script>

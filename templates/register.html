@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaxiApp Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 420px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            margin-top: 7px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            border: none;
+            border-radius: 10px;
+            background: #111;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .login {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>🚕 Create Account</h1>
+
+        <form method="POST">
+
+            <label>👤 Full Name</label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter your name"
+                required
+            >
+
+            <label>📱 Mobile Number</label>
+
+            <input
+                type="tel"
+                name="mobile"
+                placeholder="Enter mobile number"
+                required
+            >
+
+            <label>🚕 Vehicle Number (Driver)</label>
+
+            <input
+                type="text"
+                name="vehicle"
+                placeholder="e.g. HP01AB1234"
+            >
+
+            <label>🔑 Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Create password"
+                required
+            >
+
+            <label>👤 Account Type</label>
+
+            <select name="role" required>
+
+                <option value="customer">
+                    👤 Customer
+                </option>
+
+                <option value="driver">
+                    👨‍✈️ Driver
+                </option>
+
+            </select>
+
+            <button type="submit">
+                ✅ Create Account
+            </button>
+
+        </form>
+
+        <div class="login">
+            Already registered?
+            <a href="/login">Login</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

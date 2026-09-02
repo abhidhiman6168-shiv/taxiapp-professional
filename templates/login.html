@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaxiApp Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 420px;
+            margin: 60px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-top: 7px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            border: none;
+            border-radius: 10px;
+            background: #111;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .register {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>🚕 TaxiApp</h1>
+
+        <div class="subtitle">
+            Professional Taxi Booking
+        </div>
+
+        <form method="POST">
+
+            <label>📱 Mobile Number</label>
+
+            <input
+                type="tel"
+                name="mobile"
+                placeholder="Enter mobile number"
+                required
+            >
+
+            <label>🔑 Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                required
+            >
+
+            <button type="submit">
+                🔐 Login
+            </button>
+
+        </form>
+
+        <div class="register">
+            New user?
+            <a href="/register">Create Account</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

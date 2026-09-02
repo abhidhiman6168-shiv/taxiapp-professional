@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Dashboard - TaxiApp</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 22px 15px;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 25px;
+}
+
+.header p {
+    margin: 7px 0 0;
+    opacity: 0.8;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 18px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.icon {
+    font-size: 30px;
+}
+
+.label {
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.value {
+    font-size: 27px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.revenue {
+    margin-top: 15px;
+}
+
+.menu {
+    margin-top: 20px;
+}
+
+.btn {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    padding: 14px;
+    margin-top: 10px;
+    border-radius: 10px;
+    background: #111827;
+    color: white;
+}
+
+.logout {
+    background: #dc2626;
+}
+
+@media (min-width: 700px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>👑 Admin Dashboard</h1>
+    <p>🚕 Professional TaxiApp Management</p>
+</div>
+
+<div class="container">
+
+    <div class="grid">
+
+        <div class="card">
+            <div class="icon">📋</div>
+            <div class="label">Total Bookings</div>
+            <div class="value">{{ total_bookings }}</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🏁</div>
+            <div class="label">Completed Rides</div>
+            <div class="value">{{ completed }}</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">👨‍✈️</div>
+            <div class="label">Total Drivers</div>
+            <div class="value">{{ drivers }}</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">👥</div>
+            <div class="label">Total Customers</div>
+            <div class="value">{{ customers }}</div>
+        </div>
+
+        <div class="card revenue">
+            <div class="icon">💰</div>
+            <div class="label">Total Fare</div>
+            <div class="value">
+                ₹{{ "%.2f"|format(total_fare) }}
+            </div>
+        </div>
+
+        <div class="card revenue">
+            <div class="icon">🏢</div>
+            <div class="label">App Commission</div>
+            <div class="value">
+                ₹{{ "%.2f"|format(commission) }}
+            </div>
+            <div style="margin-top:6px;font-size:14px;">
+                ⚙️ Current Rate: {{ "%.1f"|format(commission_percent) }}%
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2>👨‍✈️ Driver Earnings</h2>
+
+        {% if driver_earnings %}
+
+            {% for driver in driver_earnings %}
+
+            <div style="
+                border:1px solid #e5e7eb;
+                border-radius:12px;
+                padding:15px;
+                margin-top:12px;
+            ">
+
+                <h3 style="margin:0 0 8px;">
+                    👨‍✈️ {{ driver["driver_name"] }}
+                </h3>
+
+                <p>📱 {{ driver["driver_mobile"] }}</p>
+
+                <p>💰 Total Fare:
+                    ₹{{ "%.2f"|format(driver["total_fare"]) }}
+                </p>
+
+                <p>🏢 App Commission:
+                    ₹{{ "%.2f"|format(driver["commission"]) }}
+                </p>
+
+                <p style="font-weight:bold;">
+                    💵 Driver Earning:
+                    ₹{{ "%.2f"|format(driver["driver_earning"]) }}
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p style="text-align:center;color:#777;">
+                📭 No driver earnings yet.
+            </p>
+
+        {% endif %}
+    </div>
+
+    <div class="menu">
+
+        <a href="/admin" class="btn">
+            🔄 Refresh Dashboard
+        </a>
+        
+        <a href="/admin/users" class="btn">
+            👥 Manage Users
+        </a>
+
+        <a href="/admin/payments" class="btn">
+            💳 Payment Verification
+        </a>
+
+        <a href="/admin/fare-settings" class="btn">
+            💰 Fare Settings
+        </a>
+
+
+        <a href="/logout" class="btn logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

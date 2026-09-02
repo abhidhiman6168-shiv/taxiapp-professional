@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Driver Dashboard - TaxiApp</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .booking {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 12px;
+        }
+
+        .booking p {
+            margin: 8px 0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .waiting {
+            color: #d97706;
+        }
+
+        .accepted {
+            color: #16a34a;
+        }
+
+        .onway {
+            color: #2563eb;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .accept {
+            background: #16a34a;
+            color: white;
+        }
+
+        .onway-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .complete {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .logout {
+            background: #dc2626;
+            color: white;
+        }
+
+        .empty {
+            color: #777;
+            text-align: center;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🚕 Driver Dashboard</h1>
+    <p>TaxiApp Professional</p>
+</div>
+
+<div class="container">
+
+    <!-- DRIVER ACCOUNT STATUS -->
+
+    <div class="card">
+
+        <h2>🛡️ Account Status</h2>
+
+        {% if driver_status["blocked"] %}
+
+            <p class="status" style="color:#dc2626;font-size:18px;">
+                🚫 ACCOUNT BLOCKED
+            </p>
+
+            <p>
+                Admin ne aapka account block kiya hai.
+                Aap rides accept nahi kar sakte.
+            </p>
+
+        {% elif driver_status["approval"] == "pending" %}
+
+            <p class="status" style="color:#d97706;font-size:18px;">
+                🟡 PENDING APPROVAL
+            </p>
+
+            <p>
+                Aapka driver account Admin approval ka wait kar raha hai.
+                Approval ke baad aap rides accept kar sakenge.
+            </p>
+
+        {% elif driver_status["approval"] == "rejected" %}
+
+            <p class="status" style="color:#dc2626;font-size:18px;">
+                🔴 APPLICATION REJECTED
+            </p>
+
+            <p>
+                Aapki driver application reject kar di gayi hai.
+                Kripya Admin se contact karein.
+            </p>
+
+        {% else %}
+
+            <p class="status" style="color:#16a34a;font-size:18px;">
+                🟢 DRIVER APPROVED
+            </p>
+
+            <p>
+                Aapka account approved hai. Aap rides accept kar sakte hain.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- DRIVER NOTIFICATIONS -->
+
+    <div class="card">
+        <h2>
+            🔔 Notifications
+            {% if unread_count > 0 %}
+                <span id="notification-badge" style="background:#dc2626;color:white;padding:4px 9px;border-radius:999px;font-size:14px;">
+                    {{ unread_count }} New
+                </span>
+            {% endif %}
+        </h2>
+
+        {% if notifications %}
+            {% for notification in notifications %}
+
+            <div style="padding:12px;margin-bottom:8px;border-radius:10px;border:1px solid #eee;
+                {% if notification["is_read"] == 0 %}
+                    background:#fff7ed;
+                {% else %}
+                    background:white;
+                {% endif %}
+            ">
+
+                <div style="font-weight:bold;">
+                    {{ notification["message"] }}
+                </div>
+
+                {% if notification["booking_id"] %}
+                    <small>🚕 Booking: {{ notification["booking_id"] }}</small>
+                {% endif %}
+
+                <br>
+                <small>🕐 {{ notification["created_at"] }}</small>
+
+                {% if notification["is_read"] == 0 %}
+                    <div style="margin-top:8px;">
+                        <a href="/notification/read/{{ notification['id'] }}"
+                           style="display:inline-block;padding:6px 10px;background:#2563eb;color:white;text-decoration:none;border-radius:7px;font-size:13px;">
+                            ✓ Mark as Read
+                        </a>
+                    </div>
+                {% else %}
+                    <small style="color:#16a34a;">✓ Read</small>
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+        {% else %}
+            <p class="empty">📭 No notifications yet.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- AVAILABLE BOOKINGS -->
+
+    <div class="card">
+
+        <h2>📋 Available Bookings</h2>
+
+        {% if available %}
+
+            {% for booking in available %}
+
+            <div class="booking">
+
+                <p><b>🆔 Booking:</b> {{ booking["booking_id"] }}</p>
+
+                <p>
+                    <b>👤 Customer:</b>
+                    {{ booking["customer_name"] }}
+                </p>
+
+                <p>
+                    <b>📍 Pickup:</b>
+                    {{ booking["pickup"] }}
+                </p>
+
+                <p>
+                    <b>🏁 Destination:</b>
+                    {{ booking["destination"] }}
+                </p>
+
+                <p>
+                    <b>📏 Distance:</b>
+                    {{ booking["distance"] }} KM
+                </p>
+
+                <p>
+                    <b>💰 Fare:</b>
+                    ₹{{ booking["fare"] }}
+                </p>
+
+                <p class="status waiting">
+                    🟡 WAITING
+                </p>
+
+                <a
+                    class="btn accept"
+                    href="{{ url_for('accept_booking', booking_id=booking['booking_id']) }}"
+                >
+                    ✅ ACCEPT RIDE
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                🚫 No available bookings
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ACTIVE RIDES -->
+
+    <div class="card">
+
+        <h2>🚕 My Active Ride</h2>
+
+        {% if active %}
+
+            {% for booking in active %}
+
+            <div class="booking">
+
+                <p>
+                    <b>🆔 Booking:</b>
+                    {{ booking["booking_id"] }}
+                </p>
+
+                <p>
+                    <b>👤 Customer:</b>
+                    {{ booking["customer_name"] }}
+                </p>
+
+                <p>
+                    <b>📍 Pickup:</b>
+                    {{ booking["pickup"] }}
+                </p>
+
+                <p>
+                    <b>🏁 Destination:</b>
+                    {{ booking["destination"] }}
+                </p>
+
+                <p>
+                    <b>💰 Fare:</b>
+                    ₹{{ booking["fare"] }}
+                </p>
+
+
+                {% if booking["status"] == "ACCEPTED" %}
+
+                    <p class="status accepted">
+                        🟢 ACCEPTED
+                    </p>
+
+                    <a
+                        class="btn onway-btn"
+                        href="{{ url_for('on_the_way', booking_id=booking['booking_id']) }}"
+                    >
+                        🚗 DRIVER ON THE WAY
+                    </a>
+
+
+                {% elif booking["status"] == "ON THE WAY" %}
+
+                    <p class="status onway">
+                        🚗 ON THE WAY
+                    </p>
+
+                    <a
+                        class="btn complete"
+                        href="{{ url_for('complete_ride', booking_id=booking['booking_id']) }}"
+                        
+                    >
+                        🏁 COMPLETE RIDE
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                🚫 Koi active ride nahi hai.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- DRIVER PROFILE -->
+<div style="margin-top:15px;">
+    <a href="{{ url_for('driver_profile') }}"
+       class="btn"
+       style="display:block;text-align:center;text-decoration:none;">
+        👤 MY PROFILE
+    </a>
+</div>
+
+<!-- LOGOUT -->
+
+    <div class="card">
+
+        <a
+            class="btn logout"
+            href="{{ url_for('logout') }}"
+        >
+            🚪 LOGOUT
+        </a>
+
+    </div>
+
+</div>
+
+<div style="background:white;padding:18px;border-radius:15px;margin:15px 0;">
+<h3>📍 Driver Live Location</h3>
+
+<p id="locationStatus">🔴 Location sharing OFF</p>
+
+<button onclick="startLocation()" style="width:100%;padding:14px;border:0;border-radius:10px;background:#2563eb;color:white;font-size:16px;font-weight:bold;">
+📍 START LIVE LOCATION
+</button>
+
+<button onclick="stopLocation()" style="width:100%;padding:14px;border:0;border-radius:10px;background:#dc2626;color:white;font-size:16px;font-weight:bold;margin-top:8px;">
+⛔ STOP LOCATION
+</button>
+</div>
+
+<script>
+let locationWatch = null;
+
+async function startLocation() {
+    const status = document.getElementById("locationStatus");
+
+    if (!navigator.geolocation) {
+        status.innerText = "❌ Browser GPS support nahi karta.";
+        return;
+    }
+
+    status.innerText = "🟡 GPS permission check ho rahi hai...";
+
+    try {
+        if (navigator.permissions && navigator.permissions.query) {
+            const permission = await navigator.permissions.query({
+                name: "geolocation"
+            });
+
+            console.log("GPS permission:", permission.state);
+
+            if (permission.state === "denied") {
+                status.innerText =
+                    "❌ GPS BLOCKED. Browser/Android mein Location permission Allow karo.";
+                return;
+            }
+        }
+    } catch (e) {
+        console.log("Permission check unavailable:", e);
+    }
+
+    status.innerText = "🟡 GPS location request ho rahi hai...";
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            status.innerText = "🟢 GPS mila: " + latitude.toFixed(6) + ", " + longitude.toFixed(6);
+
+            sendLocation(latitude, longitude);
+
+            if (locationWatch !== null) {
+                navigator.geolocation.clearWatch(locationWatch);
+            }
+
+            locationWatch = navigator.geolocation.watchPosition(
+                function(position) {
+                    sendLocation(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                },
+                function(error) {
+                    showLocationError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 15000
+                }
+            );
+        },
+        function(error) {
+            showLocationError(error);
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 15000
+        }
+    );
+}
+function sendLocation(latitude, longitude) {
+    fetch("/driver/location", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            latitude: latitude,
+            longitude: longitude
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("locationStatus").innerText =
+                "🟢 LIVE LOCATION ON";
+        } else {
+            document.getElementById("locationStatus").innerText =
+                "❌ " + data.message;
+        }
+    })
+    .catch(function() {
+        document.getElementById("locationStatus").innerText =
+            "❌ Server location update failed";
+    });
+}
+
+function showLocationError(error) {
+    let message = "❌ GPS error";
+
+    if (error.code === 1) {
+        message = "❌ Permission DENIED";
+    } else if (error.code === 2) {
+        message = "❌ Position UNAVAILABLE";
+    } else if (error.code === 3) {
+        message = "❌ GPS TIMEOUT";
+    }
+
+    document.getElementById("locationStatus").innerText =
+        message + " | code=" + error.code + " | " + (error.message || "No details");
+
+    console.log("GPS ERROR:", error.code, error.message);
+}
+
+function stopLocation() {
+    if (locationWatch !== null) {
+        navigator.geolocation.clearWatch(locationWatch);
+        locationWatch = null;
+    }
+
+    document.getElementById("locationStatus").innerText =
+        "🔴 Location sharing OFF";
+}
+</script>
+
+<script>
+let lastUnreadCount = 0;
+
+function playNotificationSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function ding(frequency, startTime, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value = frequency;
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        }
+
+        const now = audioContext.currentTime;
+
+        ding(880, now, 0.20);
+        ding(1175, now + 0.22, 0.28);
+
+    } catch (error) {
+        console.log("Sound error:", error);
+    }
+}
+
+function showNotificationPopup(message) {
+    const popup = document.createElement("div");
+
+    popup.textContent = "🔔 " + message;
+
+    popup.style.position = "fixed";
+    popup.style.top = "20px";
+    popup.style.right = "20px";
+    popup.style.zIndex = "9999";
+    popup.style.padding = "15px 20px";
+    popup.style.background = "#16a34a";
+    popup.style.color = "white";
+    popup.style.borderRadius = "10px";
+    popup.style.boxShadow = "0 4px 15px rgba(0,0,0,0.25)";
+    popup.style.fontWeight = "bold";
+    popup.style.maxWidth = "320px";
+
+    document.body.appendChild(popup);
+
+    setTimeout(function () {
+        popup.remove();
+    }, 5000);
+}
+
+async function checkNotifications() {
+    try {
+        const response = await fetch("/api/notifications");
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        const badge = document.getElementById("notification-badge");
+
+        if (badge) {
+            if (data.unread_count > 0) {
+                badge.textContent = data.unread_count + " New";
+                badge.style.display = "inline-block";
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        if (data.unread_count > lastUnreadCount && data.notifications.length > 0) {
+            const latest = data.notifications[0];
+
+            playNotificationSound();
+            showNotificationPopup(latest.message);
+        }
+
+        lastUnreadCount = data.unread_count;
+
+    } catch (error) {
+        console.log("Notification refresh error:", error);
+    }
+}
+
+checkNotifications();
+setInterval(checkNotifications, 5000);
+</script>
+
+</body>
+</html>
