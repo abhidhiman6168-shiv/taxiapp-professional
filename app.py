@@ -538,11 +538,14 @@ def geocode_location(location):
         )
 
         if response.status_code != 200:
+            print("GEOCODE DEBUG STATUS:", response.status_code)
+            print("GEOCODE DEBUG RESPONSE:", response.text[:300])
             return None, None
 
         data = response.json()
 
         if not data:
+            print("GEOCODE DEBUG EMPTY:", location)
             return None, None
 
         return float(data[0]["lat"]), float(data[0]["lon"])
