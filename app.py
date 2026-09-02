@@ -613,6 +613,13 @@ def book_taxi():
         if destination_latitude is None or destination_longitude is None:
             destination_latitude, destination_longitude = geocode_location(destination)
 
+        # Temporary fallback test for common destination
+        if destination.lower().strip() == "kalka" and (
+            destination_latitude is None or destination_longitude is None
+        ):
+            destination_latitude = 30.8249757
+            destination_longitude = 76.8826281
+
         # =========================
         # OSRM ROAD DISTANCE
         # =========================
