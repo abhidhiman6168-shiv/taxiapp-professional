@@ -156,6 +156,32 @@ def init_db():
         VALUES ('commission_percent', '10')
     """)
 
+    # Auto-migrate users table for existing databases
+    user_columns = {
+        "vehicle": "TEXT DEFAULT ''",
+        "blocked": "INTEGER DEFAULT 0",
+        "approval": "TEXT DEFAULT 'approved'",
+        "driving_license": "TEXT",
+        "vehicle_rc": "TEXT",
+        "id_proof": "TEXT",
+        "driver_photo": "TEXT",
+        "kyc_status": "TEXT DEFAULT 'pending'",
+        "driving_license_file": "TEXT",
+        "vehicle_rc_file": "TEXT",
+        "id_proof_file": "TEXT",
+        "latitude": "REAL",
+        "longitude": "REAL",
+        "location_updated_at": "TEXT"
+    }
+
+    existing_columns = {
+        row[1] for row in db.execute("PRAGMA table_info(users)").fetchall()
+    }
+
+    for column, definition in user_columns.items():
+        if column not in existing_columns:
+            db.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
+
     db.commit()
     db.close()
 
