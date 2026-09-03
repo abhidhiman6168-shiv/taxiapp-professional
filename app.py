@@ -79,11 +79,11 @@ def get_fare_settings():
     db = get_db()
 
     rate_row = db.execute(
-        "SELECT value FROM settings WHERE key = 'rate_per_km'"
+        "SELECT value  FROM app_settings WHERE key = 'rate_per_km'"
     ).fetchone()
 
     minimum_row = db.execute(
-        "SELECT value FROM settings WHERE key = 'minimum_fare'"
+        "SELECT value FROM app_settings WHERE key = 'minimum_fare'"
     ).fetchone()
 
     db.close()
@@ -1378,23 +1378,23 @@ def admin_fare_settings():
             return "❌ Minimum fare cannot be negative"
 
         db.execute(
-            "UPDATE settings SET value = ? WHERE key = 'rate_per_km'",
+            "UPDATE app_settings SET value = ? WHERE key = 'rate_per_km'",
             (str(rate),)
         )
 
         db.execute(
-            "UPDATE settings SET value = ? WHERE key = 'minimum_fare'",
+            "UPDATE app_settings SET value = ? WHERE key = 'minimum_fare'",
             (str(minimum_fare),)
         )
 
         db.commit()
 
     rate_row = db.execute(
-        "SELECT value FROM settings WHERE key = 'rate_per_km'"
+        "SELECT value FROM app_settings WHERE key = 'rate_per_km'"
     ).fetchone()
 
     minimum_row = db.execute(
-        "SELECT value FROM settings WHERE key = 'minimum_fare'"
+        "SELECT value FROM app_settings WHERE key = 'minimum_fare'"
     ).fetchone()
 
     commission_row = db.execute(
