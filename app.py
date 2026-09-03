@@ -537,6 +537,10 @@ def geocode_location(location):
             timeout=8
         )
 
+        print("GEOCODE DEBUG STATUS:", response.status_code)
+        print("GEOCODE DEBUG QUERY:", location)
+        print("GEOCODE DEBUG RESPONSE:", response.text[:500])
+
         if response.status_code != 200:
             return None, None
 
