@@ -194,6 +194,27 @@ def init_db():
         if column not in existing_columns:
             db.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
 
+    # Auto-migrate bookings table for existing databases
+    booking_columns = {
+        row[1] for row in db.execute("PRAGMA table_info(bookings)").fetchall()
+    }
+
+    booking_migrations = {
+        "payment_status": "TEXT NOT NULL DEFAULT 'PENDING'",
+        "payment_method": "TEXT NOT NULL DEFAULT 'CASH'",
+        "paid_at": "TIMESTAMP",
+        "pickup_latitude": "REAL",
+        "pickup_longitude": "REAL",
+        "destination_latitude": "REAL",
+        "destination_longitude": "REAL"
+    }
+
+    for column, definition in booking_migrations.items():
+        if column not in booking_columns:
+            db.execute(
+                f"ALTER TABLE bookings ADD COLUMN {column} {definition}"
+            )
+
     db.commit()
     db.close()
 
