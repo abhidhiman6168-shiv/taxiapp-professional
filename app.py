@@ -522,6 +522,27 @@ def customer_dashboard():
 # =========================
 
 def geocode_location(location):
+    # Reliable fallback coordinates for common locations
+    fallback_locations = {
+        "shimla": (31.1040393, 77.1707923),
+        "solan": (30.9077569, 77.1023645),
+        "kalka": (30.8249757, 76.8826281),
+        "chandigarh": (30.7333, 76.7794),
+        "panchkula": (30.6942, 76.8606),
+        "parwanoo": (30.8372, 76.9614),
+        "kandaghat": (30.9700, 77.1040),
+        "kumarhatti": (30.8987, 77.0600),
+        "shimla, himachal pradesh": (31.1040393, 77.1707923),
+        "solan, himachal pradesh": (30.9077569, 77.1023645),
+        "kalka, haryana": (30.8249757, 76.8826281)
+    }
+
+    key = location.strip().lower()
+
+    if key in fallback_locations:
+        print("GEOCODE FALLBACK:", location)
+        return fallback_locations[key]
+
     try:
         response = requests.get(
             "https://nominatim.openstreetmap.org/search",
@@ -539,7 +560,6 @@ def geocode_location(location):
 
         print("GEOCODE DEBUG STATUS:", response.status_code)
         print("GEOCODE DEBUG QUERY:", location)
-        print("GEOCODE DEBUG RESPONSE:", response.text[:500])
 
         if response.status_code != 200:
             return None, None
